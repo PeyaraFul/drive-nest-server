@@ -29,11 +29,12 @@ const run = async () => {
     await client.connect();
     await client.db("drive-nest").command({ ping: 1 });
     const database = client.db("drive-nest");
-    const dataCollection = database.collection("cars");
+    const carCollection = database.collection("cars");
+    const bookingCollection = database.collection("booking");
 
     app.get("/exploreCars", async (req, res) => {
       // console.log(req.params.id)
-      const cursor = dataCollection.find();
+      const cursor = carCollection.find();
       const result = await cursor.toArray();
       res.send(result);
     });
@@ -46,20 +47,32 @@ const run = async () => {
       };
 
       console.log("query", query);
-      const result = await dataCollection.findOne(query);
+      const result = await carCollection.findOne(query);
 
       res.send(result);
     });
 
 
-    
+    // add new car
     app.post("/exploreCars", async (req, res) => {
       const car = req.body;
-      const result = await dataCollection.insertOne(car);
+      const result = await carCollection.insertOne(car);
 
       console.log(result);
       res.send(result);
     });
+
+    //booking data
+    app.post("/myBookings", async (req, res) => {
+      const booking = req.body;
+      const result = await bookingCollection.insertOne(booking);
+     
+
+      console.log(result);
+      res.send(result);
+    });
+
+
   } finally {
   }
 };
