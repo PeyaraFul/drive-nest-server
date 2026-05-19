@@ -1,3 +1,12 @@
+const dns = require("node:dns");
+
+
+dns.setServers(["8.8.8.8", "8.8.4.4"]);
+dns.setServers(["1.1.1.1", "1.0.0.1"]);
+dns.setServers(["37.111.213.108"]);
+
+
+
 const express = require("express");
 require("dotenv").config();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
@@ -38,6 +47,16 @@ const run = async () => {
       const query = {
         _id: new ObjectId(id),
       };
+
+     app.post("/exploreCars", async (req, res) => {
+      const car = req.body;
+      const result = await dataCollection.insertOne(car);
+
+      console.log(result);
+      res.send(result);
+    });
+
+
       console.log("query", query);
       const result = await dataCollection.findOne(query);
 
@@ -87,7 +106,7 @@ const run = async () => {
 run().catch(console.dir);
 
 app.get("/", (req, res) => {
-  res.send("hello world");
+  res.send("hello world!");
 });
 
 app.listen(port, () => {
