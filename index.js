@@ -1,11 +1,8 @@
 const dns = require("node:dns");
 
-
 dns.setServers(["8.8.8.8", "8.8.4.4"]);
 dns.setServers(["1.1.1.1", "1.0.0.1"]);
 dns.setServers(["37.111.213.108"]);
-
-
 
 const express = require("express");
 require("dotenv").config();
@@ -48,57 +45,21 @@ const run = async () => {
         _id: new ObjectId(id),
       };
 
-     app.post("/exploreCars", async (req, res) => {
-      const car = req.body;
-      const result = await dataCollection.insertOne(car);
-
-      console.log(result);
-      res.send(result);
-    });
-
-
       console.log("query", query);
       const result = await dataCollection.findOne(query);
 
       res.send(result);
     });
 
-    // app.patch("/features/:id", async (req, res) => {
-    //   const id = req.params.id ;
-    //   const updatedData = req.body;
 
-    //   const result = await dataCollection.updateOne(
-    //     {_id: new ObjectId(id)},
-    //     {$set: updatedData}
-    //   )
-    //   res.send (result)
-    // }) ;
-
-
-    // app.delete("/features/:id", async (req, res) => {
-    //   const id = req.params.id;
-    //   const query = {
-    //     _id: new ObjectId(id)
-    //   }
-    //     const result = await dataCollection.deleteOne(query);
-    //     res.send(result)
-      
-    // })
-
-
-
-
-    // app.post("/features", async (req, res) => {
-    //   const user = req.body;
-    //   const result = await dataCollection.insertOne(user);
-
-    //   console.log(result);
-    //   res.send(result);
-    // });
     
+    app.post("/exploreCars", async (req, res) => {
+      const car = req.body;
+      const result = await dataCollection.insertOne(car);
 
-
-
+      console.log(result);
+      res.send(result);
+    });
   } finally {
   }
 };
