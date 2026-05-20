@@ -76,8 +76,8 @@ const run = async () => {
 
      //getting booking data by userId
     app.get("/myBookings/:userId", async (req, res) => {
-      const userId = req.params.id;     
-      const result = await bookingCollection.findOne( {userId} );
+      const userId = req.params.userId;     
+      const result = await bookingCollection.find({userId }).toArray();
       res.send(result);
     });
 
