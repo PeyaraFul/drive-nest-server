@@ -28,28 +28,39 @@ const run = async () => {
   try {
     await client.connect();
 
-  
-  
-      await client.db("drive-nest").command({ ping: 1 });
-
+    await client.db("drive-nest").command({ ping: 1 });
 
     const database = client.db("drive-nest");
     const carCollection = database.collection("cars");
     const bookingCollection = database.collection("bookings");
 
-   
-  
-    
-    
     app.get("/exploreCars", async (req, res) => {
       // console.log(req.params.id)
       const cursor = carCollection.find();
       const result = await cursor.toArray();
       res.send(result);
     });
+     //getting booking data by userId
+    app.get("/myBookings/:userId", async (req, res) => {
+      const userId = req.params.userId;
+      const result = await bookingCollection.find({ userId }).toArray();
+      res.send(result);
+    });
 
+    app.get("/myBookings/:id", async (req, res) => {
+      const id = req.params.id;
+      // console.log("id", req.params);
+      const query = {
+        _id: new ObjectId(id),
+      };
 
-      //getting car data by id 
+      console.log("query", query);
+      const result = await bookingCollection.findOne(query);
+
+      res.send(result);
+    });
+
+    //getting car data by id
     app.get("/exploreCars/:id", async (req, res) => {
       const id = req.params.id;
       // console.log("id", req.params);
@@ -63,6 +74,14 @@ const run = async () => {
       res.send(result);
     });
 
+    // add new car
+    app.post("/exploreCars", async (req, res) => {
+      const car = req.body;
+      const result = await carCollection.insertOne(car);
+
+      console.log(result);
+      res.send(result);
+    });
 
     //getting booking data
     app.get("/myBookings", async (req, res) => {
@@ -72,23 +91,7 @@ const run = async () => {
       res.send(result);
     });
 
-    
-
-     //getting booking data by userId
-    app.get("/myBookings/:userId", async (req, res) => {
-      const userId = req.params.userId;     
-      const result = await bookingCollection.find({userId }).toArray();
-      res.send(result);
-    });
-
-    // add new car
-    app.post("/exploreCars", async (req, res) => {
-      const car = req.body;
-      const result = await carCollection.insertOne(car);
-
-      console.log(result);
-      res.send(result);
-    });
+   
 
     //add booking data
     app.post("/myBookings", async (req, res) => {
@@ -99,7 +102,19 @@ const run = async () => {
       res.send(result);
     });
 
+    // delete my booking data cancel booking
+    app.delete("/myBookings/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = {
+        _id: new ObjectId(id),
+      };
+      const result = await bookingCollection.deleteOne(query);
+      res.send(result);
+    });
+
     
+
+
   } finally {
   }
 };
