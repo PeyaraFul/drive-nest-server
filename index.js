@@ -27,11 +27,20 @@ const client = new MongoClient(uri, {
 const run = async () => {
   try {
     await client.connect();
-    await client.db("drive-nest").command({ ping: 1 });
+
+  
+  
+      await client.db("drive-nest").command({ ping: 1 });
+
+
     const database = client.db("drive-nest");
     const carCollection = database.collection("cars");
-    const bookingCollection = database.collection("booking");
+    const bookingCollection = database.collection("bookings");
 
+   
+  
+    
+    
     app.get("/exploreCars", async (req, res) => {
       // console.log(req.params.id)
       const cursor = carCollection.find();
@@ -39,6 +48,8 @@ const run = async () => {
       res.send(result);
     });
 
+
+      //getting car data by id 
     app.get("/exploreCars/:id", async (req, res) => {
       const id = req.params.id;
       // console.log("id", req.params);
@@ -53,6 +64,23 @@ const run = async () => {
     });
 
 
+    //getting booking data
+    app.get("/myBookings", async (req, res) => {
+      // console.log(req.params.id)
+      const cursor = bookingCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    
+
+     //getting booking data by userId
+    app.get("/myBookings/:userId", async (req, res) => {
+      const userId = req.params.id;     
+      const result = await bookingCollection.findOne( {userId} );
+      res.send(result);
+    });
+
     // add new car
     app.post("/exploreCars", async (req, res) => {
       const car = req.body;
@@ -62,17 +90,16 @@ const run = async () => {
       res.send(result);
     });
 
-    //booking data
+    //add booking data
     app.post("/myBookings", async (req, res) => {
       const booking = req.body;
       const result = await bookingCollection.insertOne(booking);
-     
 
       console.log(result);
       res.send(result);
     });
 
-
+    
   } finally {
   }
 };
