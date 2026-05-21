@@ -48,11 +48,6 @@ const verifyToken = async (req, res, next) => {
     });
   }
 };
-// if (!token) {
-//   return res.status(401).send({
-//     message: "No token provided",
-//   });
-// }
 
 const run = async () => {
   try {
@@ -83,7 +78,7 @@ const run = async () => {
     });
 
     //getting car data by userid
-    app.get("/car/user/:userId", async (req, res) => {
+    app.get("/car/user/:userId", verifyToken, async (req, res) => {
       const userId = req.params.userId;
       const result = await carCollection.find({ userId: userId }).toArray();
       res.send(result);
@@ -99,7 +94,7 @@ const run = async () => {
     });
 
     //update car data
-    app.patch("/car/:id", async (req, res) => {
+    app.patch("/car/:id", verifyToken, async (req, res) => {
       const id = req.params.id;
       const updatedData = req.body;
 
@@ -111,14 +106,14 @@ const run = async () => {
     });
 
     // getting booking data
-    app.get("/booking", async (req, res) => {
+    app.get("/booking", verifyToken, async (req, res) => {
       const cursor = bookingCollection.find();
       const result = await cursor.toArray();
       res.send(result);
     });
 
     // getting booking data by id
-    app.get("/myBookings/:id", async (req, res) => {
+    app.get("/myBookings/:id", verifyToken, async (req, res) => {
       const id = req.params.id;
       // console.log("id", req.params);
       const query = {
@@ -127,14 +122,14 @@ const run = async () => {
     });
 
     //getting booking data by userId
-    app.get("/booking/user/:userId", async (req, res) => {
+    app.get("/booking/user/:userId", verifyToken, async (req, res) => {
       const userId = req.params.userId;
       const result = await bookingCollection.find({ userId: userId }).toArray();
       res.send(result);
     });
 
     //add booking data
-    app.post("/booking", async (req, res) => {
+    app.post("/booking", verifyToken, async (req, res) => {
       const booking = req.body;
       const result = await bookingCollection.insertOne(booking);
       console.log(result);
@@ -142,7 +137,7 @@ const run = async () => {
     });
 
     // delete my booking data cancel booking
-    app.delete("/booking/:id", async (req, res) => {
+    app.delete("/booking/:id", verifyToken, async (req, res) => {
       const id = req.params.id;
       const query = {
         _id: new ObjectId(id),
