@@ -11,6 +11,7 @@ const uri = process.env.MONGODB_URI;
 
 const app = express();
 const cors = require("cors");
+const { createRemoteJWKSet, jwtVerify } = require("jose-cjs");
 const port = process.env.PORT || 5000;
 
 app.use(cors());
@@ -23,6 +24,35 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   },
 });
+
+const JWKS = createRemoteJWKSet(new URL("http://localhost:3000/api/auth/jwks"));
+const verifyToken = async (req, res, next) => {
+  const authHeaders = req?.headers.authorization;
+  if (!authHeaders) {
+    return res.status(401).send({
+      message: "Unauthorized access",
+    });
+  }
+  const token = authHeaders.split(" ")[1];
+  if (!token) {
+    return res.status(401).send({
+      message: "Unauthorized access",
+    });
+  }
+  try {
+    const { payload } = await jwtVerify(token, JWKS);
+    next();
+  } catch (error) {
+    return res.status(403).send({
+      message: "Invalid",
+    });
+  }
+};
+// if (!token) {
+//   return res.status(401).send({
+//     message: "No token provided",
+//   });
+// }
 
 const run = async () => {
   try {
@@ -43,7 +73,7 @@ const run = async () => {
     });
 
     //getting car data by id
-    app.get("/exploreCars/:id", async (req, res) => {
+    app.get("/exploreCars/:id", verifyToken, async (req, res) => {
       const id = req.params.id;
       const query = {
         _id: new ObjectId(id),
