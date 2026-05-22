@@ -25,6 +25,7 @@ const client = new MongoClient(uri, {
   },
 });
 
+//token verify function
 const JWKS = createRemoteJWKSet(new URL("http://localhost:3000/api/auth/jwks"));
 const verifyToken = async (req, res, next) => {
   const authHeaders = req?.headers.authorization;
@@ -85,7 +86,7 @@ const run = async () => {
     });
 
     // add new car
-    app.post("/car", async (req, res) => {
+    app.post("/car", verifyToken, async (req, res) => {
       const car = req.body;
       const result = await carCollection.insertOne(car);
 
@@ -102,6 +103,16 @@ const run = async () => {
         { _id: new ObjectId(id) },
         { $set: updatedData },
       );
+      res.send(result);
+    });
+
+    // delete my car data
+    app.delete("/car/:id", verifyToken, async (req, res) => {
+      const id = req.params.id;
+      const query = {
+        _id: new ObjectId(id),
+      };
+      const result = await carCollection.deleteOne(query);
       res.send(result);
     });
 
@@ -131,9 +142,24 @@ const run = async () => {
     //add booking data
     app.post("/booking", verifyToken, async (req, res) => {
       const booking = req.body;
+
+      //if a user booked a car the bookedBy field will increase
+      const alreadyBooked = await bookingCollection.findOne({
+        carId: booking.carId,
+        userId: booking.userId,
+      });
+      if (!alreadyBooked) {
+        await carCollection.updateOne(
+          { _id: new ObjectId(booking.carId) },
+          { $inc: { bookedBy: 1 } },
+        );
+      }
+
       const result = await bookingCollection.insertOne(booking);
-      console.log(result);
-      res.send(result);
+
+      res.send({
+        bookingResult: result,
+      });
     });
 
     // delete my booking data cancel booking
