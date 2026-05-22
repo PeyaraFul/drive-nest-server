@@ -60,11 +60,23 @@ const run = async () => {
     const carCollection = database.collection("cars");
     const bookingCollection = database.collection("bookings");
 
-    //getting all car data
+    //getting car data
     app.get("/car", async (req, res) => {
-      // console.log(req.params.id)
-      const cursor = carCollection.find();
-      const result = await cursor.toArray();
+      const { search = "", carType } = req.query;
+      let query = {};
+      if (search.trim() !== "") {
+        query.carName = {
+          $regex: search,
+          $options: "i",
+        };
+      }
+
+      if (carType) {
+        query.carType = carType;
+      }
+
+      const result = await carCollection.find(query).toArray();
+
       res.send(result);
     });
 
